@@ -5,22 +5,32 @@ import android.view.View.GONE
 import android.view.View.VISIBLE
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatDelegate
+import androidx.core.content.ContextCompat
+import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
+import dagger.android.AndroidInjection
 import viktor.khlebnikov.gb.gbprofrazrab.R
 import viktor.khlebnikov.gb.gbprofrazrab.databinding.ActivityMainBinding
 import viktor.khlebnikov.gb.gbprofrazrab.translator.data.AppState
 import viktor.khlebnikov.gb.gbprofrazrab.translator.data.DataModel
-import viktor.khlebnikov.gb.gbprofrazrab.translator.data.Presenter
 import viktor.khlebnikov.gb.gbprofrazrab.translator.data.View
 import viktor.khlebnikov.gb.gbprofrazrab.translator.ui.base.BaseActivity
+import javax.inject.Inject
 
-class MainActivity : BaseActivity<AppState>() {
+class MainActivity : BaseActivity<AppState>(), View {
+
+    @Inject
+    lateinit var viewModelFactory: ViewModelProvider.Factory
 
     private lateinit var binding: ActivityMainBinding
 
     private var adapter: MainAdapter? = null
+
+    override val model by lazy {
+        viewModelFactory.create(MainViewModel::class.java)
+    }
+
     private val onListItemClickListener: MainAdapter.OnListItemClickListener =
         object : MainAdapter.OnListItemClickListener {
             override fun onItemClick(data: DataModel) {
@@ -28,11 +38,8 @@ class MainActivity : BaseActivity<AppState>() {
             }
         }
 
-    override fun createPresenter(): Presenter<AppState, View> {
-        return MainPresenterImpl()
-    }
-
     override fun onCreate(savedInstanceState: Bundle?) {
+        AndroidInjection.inject(this)
         super.onCreate(savedInstanceState)
         AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.getDefaultNightMode())
         binding = ActivityMainBinding.inflate(layoutInflater)
@@ -42,7 +49,7 @@ class MainActivity : BaseActivity<AppState>() {
             searchDialogFragment.setOnSearchClickListener(object :
                 SearchDialogFragment.OnSearchClickListener {
                 override fun onClick(searchWord: String) {
-                    presenter.getData(searchWord, true)
+                    model.getWordDescriptions(searchWord, true)
                 }
             })
             searchDialogFragment.show(supportFragmentManager, BOTTOM_SHEET_FRAGMENT_DIALOG_TAG)
@@ -58,9 +65,12 @@ class MainActivity : BaseActivity<AppState>() {
                 } else {
                     showViewSuccess()
                     if (adapter == null) {
-                        val decoration = DividerItemDecoration(applicationContext,
-                            LinearLayoutManager.VERTICAL)
-                        getDrawable(R.drawable.decorate)?.let { decoration.setDrawable(it) }
+                        val decoration = DividerItemDecoration(
+                            applicationContext,
+                            LinearLayoutManager.VERTICAL
+                        )
+                        ContextCompat.getDrawable(baseContext, R.drawable.decorate)
+                            ?.let { decoration.setDrawable(it) }
                         binding.mainActivityRecyclerview.layoutManager =
                             LinearLayoutManager(applicationContext)
                         binding.mainActivityRecyclerview.adapter =
@@ -93,7 +103,7 @@ class MainActivity : BaseActivity<AppState>() {
         showViewError()
         binding.errorTextview.text = error ?: getString(R.string.undefined_error)
         binding.reloadButton.setOnClickListener {
-            presenter.getData("hi", true)
+            showViewSuccess()
         }
     }
 

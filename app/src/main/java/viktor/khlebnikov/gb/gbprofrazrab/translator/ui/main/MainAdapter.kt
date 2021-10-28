@@ -17,15 +17,12 @@ class MainAdapter(
         return MainViewHolder(parent)
     }
 
-    //если не переопределить этот метод, в mainActivity адаптер не успевает заататчится
-    // и его, как вы сделали на уроке, приходится переносить в oncreate
     override fun getItemCount(): Int {
         return data.size
     }
 
     override fun onBindViewHolder(holder: MainViewHolder, position: Int) {
         holder.bind(data[position])
-//        holder.bind(currentList[position]) - раз переопределили getItemCount, то здесь уже берем позицию из data
     }
 
 
