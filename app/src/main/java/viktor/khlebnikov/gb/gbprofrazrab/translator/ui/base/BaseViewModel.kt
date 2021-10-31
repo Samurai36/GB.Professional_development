@@ -3,21 +3,27 @@ package viktor.khlebnikov.gb.gbprofrazrab.translator.ui.base
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import io.reactivex.disposables.CompositeDisposable
+import kotlinx.coroutines.*
 import viktor.khlebnikov.gb.gbprofrazrab.translator.data.AppState
-import viktor.khlebnikov.gb.gbprofrazrab.translator.rx.ISchedulerProvider
-import viktor.khlebnikov.gb.gbprofrazrab.translator.rx.SchedulerProvider
 
 abstract class BaseViewModel<T : AppState>(
-    protected val stateLiveData: MutableLiveData<T> = MutableLiveData(),
-    protected val schedulerProvider: ISchedulerProvider = SchedulerProvider()
+    protected val stateLiveData: MutableLiveData<T> = MutableLiveData()
 ) : ViewModel() {
 
-    protected val compositeDisposable: CompositeDisposable = CompositeDisposable()
+    protected val viewModelScope = CoroutineScope(
+        Dispatchers.Main + SupervisorJob() + CoroutineExceptionHandler { _, throwable ->
+            handleError(throwable)
+        }
+    )
 
     fun getStateLiveData(): LiveData<T> = stateLiveData
 
     override fun onCleared() {
-        compositeDisposable.clear()
+        cancelJob()
     }
+    protected fun cancelJob() {
+        viewModelScope.coroutineContext.cancelChildren()
+    }
+
+    abstract fun handleError(error: Throwable)
 }

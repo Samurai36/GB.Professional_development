@@ -6,30 +6,23 @@ import android.view.View.VISIBLE
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.content.ContextCompat
-import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
-import dagger.android.AndroidInjection
+import org.koin.androidx.viewmodel.ext.android.viewModel
 import viktor.khlebnikov.gb.gbprofrazrab.R
 import viktor.khlebnikov.gb.gbprofrazrab.databinding.ActivityMainBinding
 import viktor.khlebnikov.gb.gbprofrazrab.translator.data.AppState
 import viktor.khlebnikov.gb.gbprofrazrab.translator.data.DataModel
 import viktor.khlebnikov.gb.gbprofrazrab.translator.data.View
 import viktor.khlebnikov.gb.gbprofrazrab.translator.ui.base.BaseActivity
-import javax.inject.Inject
 
 class MainActivity : BaseActivity<AppState>(), View {
-
-    @Inject
-    lateinit var viewModelFactory: ViewModelProvider.Factory
 
     private lateinit var binding: ActivityMainBinding
 
     private var adapter: MainAdapter? = null
 
-    override val model by lazy {
-        viewModelFactory.create(MainViewModel::class.java)
-    }
+    override val model: MainViewModel by viewModel()
 
     private val onListItemClickListener: MainAdapter.OnListItemClickListener =
         object : MainAdapter.OnListItemClickListener {
@@ -39,11 +32,15 @@ class MainActivity : BaseActivity<AppState>(), View {
         }
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        AndroidInjection.inject(this)
         super.onCreate(savedInstanceState)
         AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.getDefaultNightMode())
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        initViews()
+        model.subscribe().observe(this@MainActivity) { renderData(it) }
+    }
+
+    private fun initViews() {
         binding.searchFab.setOnClickListener {
             val searchDialogFragment = SearchDialogFragment.newInstance()
             searchDialogFragment.setOnSearchClickListener(object :
@@ -54,6 +51,7 @@ class MainActivity : BaseActivity<AppState>(), View {
             })
             searchDialogFragment.show(supportFragmentManager, BOTTOM_SHEET_FRAGMENT_DIALOG_TAG)
         }
+        binding.mainActivityRecyclerview.layoutManager = LinearLayoutManager(applicationContext)
     }
 
     override fun renderData(appState: AppState) {
@@ -71,8 +69,6 @@ class MainActivity : BaseActivity<AppState>(), View {
                         )
                         ContextCompat.getDrawable(baseContext, R.drawable.decorate)
                             ?.let { decoration.setDrawable(it) }
-                        binding.mainActivityRecyclerview.layoutManager =
-                            LinearLayoutManager(applicationContext)
                         binding.mainActivityRecyclerview.adapter =
                             MainAdapter(onListItemClickListener, dataModel)
                         binding.mainActivityRecyclerview.addItemDecoration(decoration)

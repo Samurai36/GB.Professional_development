@@ -1,40 +1,38 @@
 package viktor.khlebnikov.gb.gbprofrazrab.translator.ui.main
 
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.SavedStateHandle
-import io.reactivex.observers.DisposableObserver
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import viktor.khlebnikov.gb.gbprofrazrab.translator.data.AppState
 import viktor.khlebnikov.gb.gbprofrazrab.translator.interactor.main.MainInteractor
 import viktor.khlebnikov.gb.gbprofrazrab.translator.ui.base.BaseViewModel
-import javax.inject.Inject
 
-class MainViewModel @Inject constructor(
+class MainViewModel(
     private val interactor: MainInteractor
 ) : BaseViewModel<AppState>() {
 
-    fun getWordDescriptions(word: String, isOnline: Boolean) {
-        compositeDisposable.add(
-            interactor.getData(word, isOnline)
-                .subscribeOn(schedulerProvider.io())
-                .observeOn(schedulerProvider.ui())
-                .doOnSubscribe { stateLiveData.value = AppState.Loading(null) }
-                .subscribeWith(getObserver())
-        )
+    private val liveDataForViewToObserve: LiveData<AppState> = getStateLiveData()
+
+    fun subscribe(): LiveData<AppState> {
+        return liveDataForViewToObserve
     }
-    private fun getObserver(): DisposableObserver<AppState> {
-        return object : DisposableObserver<AppState>() {
 
-            override fun onNext(appState: AppState) {
-                stateLiveData.value = appState
-            }
-
-            override fun onError(e: Throwable) {
-                stateLiveData.value = AppState.Error(e)
-            }
-
-            override fun onComplete() {
-            }
+    fun getWordDescriptions(word: String, isOnline: Boolean) {
+        stateLiveData.value = AppState.Loading(null)
+        cancelJob()
+        viewModelScope.launch {
+            startInteractor(word, isOnline)
         }
     }
 
+    private suspend fun startInteractor(word: String, isOnline: Boolean) =
+        withContext(Dispatchers.IO) {
+            stateLiveData.postValue(interactor.getData(word, isOnline))
+
+        }
+
+    override fun handleError(error: Throwable) {
+        stateLiveData.value = AppState.Error(error)
+    }
 }
