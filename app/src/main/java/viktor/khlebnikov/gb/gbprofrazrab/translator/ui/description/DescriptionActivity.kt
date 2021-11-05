@@ -1,4 +1,4 @@
-package viktor.khlebnikov.gb.gbprofrazrab.translator
+package viktor.khlebnikov.gb.gbprofrazrab.translator.ui.description
 
 import android.content.Context
 import android.content.Intent
@@ -20,12 +20,16 @@ import com.squareup.picasso.Callback
 import com.squareup.picasso.Picasso
 import viktor.khlebnikov.gb.gbprofrazrab.R
 import viktor.khlebnikov.gb.gbprofrazrab.databinding.ActivityDescriptionBinding
+import viktor.khlebnikov.gb.gbprofrazrab.translator.isOnline
 import viktor.khlebnikov.gb.gbprofrazrab.translator.ui.AlertDialogFragment
 import java.lang.Exception
 
 class DescriptionActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityDescriptionBinding
+    private val imageLoader by lazy {
+        ImageLoader(this)
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -39,6 +43,10 @@ class DescriptionActivity : AppCompatActivity() {
         setData()
     }
 
+    override fun onDestroy() {
+        imageLoader.shutdown()
+        super.onDestroy()
+    }
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             android.R.id.home -> {
@@ -83,7 +91,7 @@ class DescriptionActivity : AppCompatActivity() {
             )
             .build()
 
-        ImageLoader(this).execute(request)
+        imageLoader.execute(request)
     }
 
     private fun useGlideToLoadPhoto(imageview: ImageView, imageUrl: String) {

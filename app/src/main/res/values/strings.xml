@@ -13,4 +13,5 @@
     <string name="dialog_title_device_is_offline">Device is offline</string>
     <string name="dialog_message_device_is_offline">Device is offline. Please get online</string>
     <string name="dialog_tittle_sorry">Sorry</string>
+    <string name="menu_title_history">History</string>
 </resources>

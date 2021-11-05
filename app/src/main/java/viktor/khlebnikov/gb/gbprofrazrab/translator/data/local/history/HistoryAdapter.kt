@@ -1,4 +1,4 @@
-package viktor.khlebnikov.gb.gbprofrazrab.translator.ui.main
+package viktor.khlebnikov.gb.gbprofrazrab.translator.data.local.history
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
@@ -7,32 +7,32 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import viktor.khlebnikov.gb.gbprofrazrab.databinding.ActivityMainRecyclerviewItemBinding
 import viktor.khlebnikov.gb.gbprofrazrab.translator.data.DataModel
+import viktor.khlebnikov.gb.gbprofrazrab.translator.ui.main.MainAdapter
 
-class MainAdapter(
-    private val onListItemClickListener: OnListItemClickListener
-) : ListAdapter<DataModel, MainAdapter.MainViewHolder>(MainCallback) {
+class HistoryAdapter(
+    private val onListItemClickListener: MainAdapter.OnListItemClickListener
+) : ListAdapter<DataModel, HistoryAdapter.HistoryViewHolder>(MainCallback) {
 
     private var data: List<DataModel> = arrayListOf()
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MainViewHolder {
-        return MainViewHolder(parent)
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): HistoryViewHolder {
+        return HistoryViewHolder(parent)
     }
 
     override fun getItemCount(): Int {
         return data.size
     }
 
-    override fun onBindViewHolder(holder: MainViewHolder, position: Int) {
+    override fun onBindViewHolder(holder: HistoryViewHolder, position: Int) {
         holder.bind(data[position])
     }
-
 
     fun setData(data: List<DataModel>) {
         this.data = data
         notifyDataSetChanged()
     }
 
-    inner class MainViewHolder(view: ViewGroup) :
+    inner class HistoryViewHolder(view: ViewGroup) :
         RecyclerView.ViewHolder(
             ActivityMainRecyclerviewItemBinding.inflate(
                 view.inflater(),
@@ -47,32 +47,29 @@ class MainAdapter(
                 binder.headerTextviewRecyclerItem.text = data.text
                 binder.descriptionTextviewRecyclerItem.text =
                     data.meanings?.firstOrNull()?.translation?.translation
-                binder.root.setOnClickListener { openInNewWindow(data)
+                binder.root.setOnClickListener {
+                    openInNewWindow(data)
                 }
             }
         }
+
+        private fun openInNewWindow(listItemData: DataModel) {
+            onListItemClickListener.onItemClick(listItemData)
+        }
     }
+
 
     private fun ViewGroup.inflater() = LayoutInflater.from(context)
 
-    private fun openInNewWindow(listItemData: DataModel) {
-        onListItemClickListener.onItemClick(listItemData)
-    }
 
-    interface OnListItemClickListener {
-        fun onItemClick(data: DataModel)
-    }
+    object MainCallback : DiffUtil.ItemCallback<DataModel>() {
+        override fun areItemsTheSame(oldItem: DataModel, newItem: DataModel): Boolean {
+            return oldItem == newItem
+        }
 
+        override fun areContentsTheSame(oldItem: DataModel, newItem: DataModel): Boolean {
+            return oldItem == newItem
+        }
+
+    }
 }
-
-object MainCallback : DiffUtil.ItemCallback<DataModel>() {
-    override fun areItemsTheSame(oldItem: DataModel, newItem: DataModel): Boolean {
-        return oldItem == newItem
-    }
-
-    override fun areContentsTheSame(oldItem: DataModel, newItem: DataModel): Boolean {
-        return oldItem == newItem
-    }
-
-}
-
