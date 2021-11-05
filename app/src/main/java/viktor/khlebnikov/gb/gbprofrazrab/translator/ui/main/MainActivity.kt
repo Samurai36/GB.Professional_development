@@ -3,7 +3,6 @@ package viktor.khlebnikov.gb.gbprofrazrab.translator.ui.main
 import android.os.Bundle
 import android.view.View.GONE
 import android.view.View.VISIBLE
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.DividerItemDecoration
@@ -11,6 +10,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import viktor.khlebnikov.gb.gbprofrazrab.R
 import viktor.khlebnikov.gb.gbprofrazrab.databinding.ActivityMainBinding
+import viktor.khlebnikov.gb.gbprofrazrab.translator.DescriptionActivity
 import viktor.khlebnikov.gb.gbprofrazrab.translator.data.AppState
 import viktor.khlebnikov.gb.gbprofrazrab.translator.data.DataModel
 import viktor.khlebnikov.gb.gbprofrazrab.translator.data.View
@@ -27,7 +27,15 @@ class MainActivity : BaseActivity<AppState>(), View {
     private val onListItemClickListener: MainAdapter.OnListItemClickListener =
         object : MainAdapter.OnListItemClickListener {
             override fun onItemClick(data: DataModel) {
-                Toast.makeText(this@MainActivity, data.text, Toast.LENGTH_SHORT).show()
+                startActivity(
+                    DescriptionActivity.getIntent(
+                        this@MainActivity,
+                        data.text.orEmpty(),
+                        data.meanings?.joinToString { it.translation?.translation.orEmpty() }
+                            .orEmpty(),
+                        data.meanings?.firstOrNull()?.imageUrl
+                    )
+                )
             }
         }
 
