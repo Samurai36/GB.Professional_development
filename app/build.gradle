@@ -1,18 +1,21 @@
 plugins {
     id 'com.android.application'
     id 'org.jetbrains.kotlin.android'
+    id 'kotlin-android'
+    id 'kotlin-android-extensions'
+    id 'kotlin-kapt'
 }
 
 android {
-    compileSdk 31
+
+    compileSdkVersion Config.compile_sdk
 
     defaultConfig {
-        applicationId "viktor.khlebnikov.gb.gbprofrazrab"
-        minSdk 21
-        targetSdk 31
-        versionCode 1
-        versionName "1.0"
-
+        applicationId Config.application_Id
+        minSdk Config.min_sdk
+        targetSdk Config.target_sdk
+        Releases.versionCode
+        Releases.versionName
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -22,22 +25,73 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
+
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility Config.java_version
+        targetCompatibility Config.java_version
     }
+
     kotlinOptions {
         jvmTarget = '1.8'
+    }
+
+    configurations {
+        implementation.exclude group: 'org.intellij', module: 'annotations'
     }
 }
 
 dependencies {
 
-    implementation 'androidx.core:core-ktx:1.6.0'
-    implementation 'androidx.appcompat:appcompat:1.3.1'
-    implementation 'com.google.android.material:material:1.4.0'
-    implementation 'androidx.constraintlayout:constraintlayout:2.1.1'
-    testImplementation 'junit:junit:4.13.2'
-    androidTestImplementation 'androidx.test.ext:junit:1.1.3'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.4.0'
+    implementation(project(Modules.model))
+    implementation(project(Modules.core))
+    implementation(project(Modules.utils))
+    implementation(project(Modules.repository))
+    implementation(project(Modules.history))
+
+    // Room
+    implementation Room.roomRuntime
+    kapt Room.roomCompiler
+    implementation Room.roomKtx
+
+    // Picasso
+    implementation Images.picasso
+    // Glide
+    implementation Images.glide
+    implementation Images.swiperefreshlayout
+    kapt Images.glideCompiler
+    // Coil
+    implementation Images.coil
+
+    // Coroutines
+    implementation Coroutines.coroutinesCore
+    implementation Coroutines.coroutinesAndroid
+    implementation Coroutines.coroutinesAdapter
+    implementation Coroutines.coroutinesKotlinx
+
+    // Koin
+    // Основная библиотека
+    implementation Koin.koinCore
+    // Koin для поддержки Android (Scope,ViewModel ...)
+    implementation Koin.koinAndroid
+    // Для совместимости с Java
+    implementation Koin.koinAndroidCompat
+
+    // Rx-Java
+//    implementation RxJava.rxAndroid
+//    implementation RxJava.rxjava
+
+    // Retrofit 2
+    implementation Retrofit.retrofit
+    implementation Retrofit.converterGson
+    implementation Retrofit.loggingInterceptor
+    implementation Retrofit.rxjava2Adapter
+
+    implementation Android.coreKtx
+    implementation Android.appcompat
+    implementation Android.material
+    implementation Android.constraintlayout
+
+    testImplementation TestImpl.junit
+    androidTestImplementation TestImpl.androidJunit
+    androidTestImplementation TestImpl.espressoCore
 }
