@@ -8,15 +8,15 @@ import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import org.koin.androidx.viewmodel.ext.android.viewModel
+import viktor.khlebnikov.gb.core.BaseActivity
 import viktor.khlebnikov.gb.gbprofrazrab.R
 import viktor.khlebnikov.gb.gbprofrazrab.databinding.ActivityMainBinding
-import viktor.khlebnikov.gb.gbprofrazrab.translator.data.AppState
-import viktor.khlebnikov.gb.gbprofrazrab.translator.data.DataModel
-import viktor.khlebnikov.gb.gbprofrazrab.translator.data.local.history.HistoryActivity
 import viktor.khlebnikov.gb.gbprofrazrab.translator.interactor.main.MainInteractor
-import viktor.khlebnikov.gb.gbprofrazrab.translator.isOnline
-import viktor.khlebnikov.gb.gbprofrazrab.translator.ui.base.BaseActivity
-import viktor.khlebnikov.gb.gbprofrazrab.translator.ui.description.DescriptionActivity
+import viktor.khlebnikov.gb.history.description.DescriptionActivity
+import viktor.khlebnikov.gb.model.AppState
+import viktor.khlebnikov.gb.model.DataModel
+import viktor.khlebnikov.gb.repository.SearchDialogFragment
+import viktor.khlebnikov.gb.utils.isOnline
 
 class MainActivity : BaseActivity<AppState, MainInteractor>() {
 
@@ -99,7 +99,7 @@ class MainActivity : BaseActivity<AppState, MainInteractor>() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             R.id.menu_history -> {
-                startActivity(HistoryActivity.createIntent(this))
+                startActivity(viktor.khlebnikov.gb.history.HistoryActivity.createIntent(this))
                 true
             }
             else -> super.onOptionsItemSelected(item)

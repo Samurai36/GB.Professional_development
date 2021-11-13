@@ -6,7 +6,7 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import viktor.khlebnikov.gb.gbprofrazrab.databinding.ActivityMainRecyclerviewItemBinding
-import viktor.khlebnikov.gb.gbprofrazrab.translator.data.DataModel
+import viktor.khlebnikov.gb.model.DataModel
 
 class MainAdapter(
     private val onListItemClickListener: OnListItemClickListener

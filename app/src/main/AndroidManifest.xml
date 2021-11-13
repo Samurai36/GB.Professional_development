@@ -22,8 +22,8 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".translator.ui.description.DescriptionActivity" />
-        <activity android:name=".translator.data.local.history.HistoryActivity" />
+        <activity android:name="viktor.khlebnikov.gb.history.description.DescriptionActivity" />
+        <activity android:name="viktor.khlebnikov.gb.history.HistoryActivity" />
     </application>
 
 </manifest>

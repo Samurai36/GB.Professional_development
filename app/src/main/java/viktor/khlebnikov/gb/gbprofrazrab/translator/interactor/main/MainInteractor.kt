@@ -1,6 +1,10 @@
 package viktor.khlebnikov.gb.gbprofrazrab.translator.interactor.main
 
-import viktor.khlebnikov.gb.gbprofrazrab.translator.data.*
+import viktor.khlebnikov.gb.core.viewmodel.Interactor
+import viktor.khlebnikov.gb.model.AppState
+import viktor.khlebnikov.gb.model.DataModel
+import viktor.khlebnikov.gb.repository.Repository
+import viktor.khlebnikov.gb.repository.RepositoryLocal
 
 class MainInteractor(
     private val remoteRepository: Repository<List<DataModel>>,

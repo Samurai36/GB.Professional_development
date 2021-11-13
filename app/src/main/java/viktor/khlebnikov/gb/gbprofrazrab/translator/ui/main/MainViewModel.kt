@@ -4,14 +4,13 @@ import androidx.lifecycle.LiveData
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import viktor.khlebnikov.gb.gbprofrazrab.translator.data.AppState
 import viktor.khlebnikov.gb.gbprofrazrab.translator.interactor.main.MainInteractor
-import viktor.khlebnikov.gb.gbprofrazrab.translator.ui.base.BaseViewModel
-import viktor.khlebnikov.gb.gbprofrazrab.translator.utils.parseOnlineSearchResults
+import viktor.khlebnikov.gb.history.parseOnlineSearchResults
+import viktor.khlebnikov.gb.model.AppState
 
 class MainViewModel(
     private val interactor: MainInteractor
-) : BaseViewModel<AppState>() {
+) : viktor.khlebnikov.gb.core.viewmodel.BaseViewModel<AppState>() {
 
     private val liveDataForViewToObserve: LiveData<AppState> = getStateLiveData()
 
