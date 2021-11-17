@@ -5,7 +5,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import viktor.khlebnikov.gb.gbprofrazrab.translator.interactor.main.MainInteractor
-import viktor.khlebnikov.gb.history.parseOnlineSearchResults
+import viktor.khlebnikov.gb.gbprofrazrab.translator.utils.parseOnlineSearchResults
 import viktor.khlebnikov.gb.model.AppState
 
 class MainViewModel(

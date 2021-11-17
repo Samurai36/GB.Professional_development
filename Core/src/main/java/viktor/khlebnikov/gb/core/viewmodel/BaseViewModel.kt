@@ -19,6 +19,7 @@ abstract class BaseViewModel<T : AppState>(
     fun getStateLiveData(): LiveData<T> = stateLiveData
 
     override fun onCleared() {
+        super.onCleared()
         cancelJob()
     }
     protected fun cancelJob() {

@@ -6,11 +6,12 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import viktor.khlebnikov.gb.history.databinding.ActivityMainRecyclerviewItemBinding
-import viktor.khlebnikov.gb.model.DataModel
+import viktor.khlebnikov.gb.model.dto.SearchResultDTO
+import viktor.khlebnikov.gb.model.usersData.DataModel
 
 class HistoryAdapter(
     private val onListItemClickListener: OnListItemClickListener
-) : ListAdapter<DataModel, HistoryAdapter.HistoryViewHolder>(MainCallback) {
+) : ListAdapter<SearchResultDTO, HistoryAdapter.HistoryViewHolder>(MainCallback) {
 
     private var data: List<DataModel> = arrayListOf()
 
@@ -45,7 +46,7 @@ class HistoryAdapter(
                 val binder = ActivityMainRecyclerviewItemBinding.bind(itemView)
                 binder.headerTextviewRecyclerItem.text = data.text
                 binder.descriptionTextviewRecyclerItem.text =
-                    data.meanings?.firstOrNull()?.translation?.translation
+                    convertMeaningsToString(data.meanings)
                 binder.root.setOnClickListener {
                     openInNewWindow(data)
                 }
@@ -63,12 +64,12 @@ class HistoryAdapter(
 
     private fun ViewGroup.inflater() = LayoutInflater.from(context)
 
-    object MainCallback : DiffUtil.ItemCallback<DataModel>() {
-        override fun areItemsTheSame(oldItem: DataModel, newItem: DataModel): Boolean {
+    object MainCallback : DiffUtil.ItemCallback<SearchResultDTO>() {
+        override fun areItemsTheSame(oldItem: SearchResultDTO, newItem: SearchResultDTO): Boolean {
             return oldItem == newItem
         }
 
-        override fun areContentsTheSame(oldItem: DataModel, newItem: DataModel): Boolean {
+        override fun areContentsTheSame(oldItem: SearchResultDTO, newItem: SearchResultDTO): Boolean {
             return oldItem == newItem
         }
 

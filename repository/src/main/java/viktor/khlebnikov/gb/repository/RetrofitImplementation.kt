@@ -5,13 +5,13 @@ import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
-import viktor.khlebnikov.gb.model.DataModel
+import viktor.khlebnikov.gb.model.dto.SearchResultDTO
 import viktor.khlebnikov.gb.repository.api.ApiService
 import viktor.khlebnikov.gb.repository.api.BaseInterceptor
 
-class RetrofitImplementation : DataSource<List<DataModel>> {
+class RetrofitImplementation : DataSource<List<SearchResultDTO>> {
 
-    override suspend fun getData(word: String): List<DataModel> {
+    override suspend fun getData(word: String): List<SearchResultDTO> {
         return getService(BaseInterceptor.interceptor).search(word)
     }
 

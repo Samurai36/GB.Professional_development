@@ -1,19 +1,19 @@
 package viktor.khlebnikov.gb.history
 
+//import org.koin.androidx.viewmodel.ext.android.viewModel
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import androidx.core.content.ContextCompat
-import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
-import org.koin.androidx.viewmodel.ext.android.viewModel
-//import org.koin.androidx.viewmodel.ext.android.viewModel
+import org.koin.android.ext.android.getKoin
+import org.koin.core.qualifier.named
 import viktor.khlebnikov.gb.core.BaseActivity
 import viktor.khlebnikov.gb.history.databinding.ActivityHistoryBinding
 import viktor.khlebnikov.gb.history.description.DescriptionActivity
 import viktor.khlebnikov.gb.model.AppState
-import viktor.khlebnikov.gb.model.DataModel
+import viktor.khlebnikov.gb.model.usersData.DataModel
 
 class HistoryActivity : BaseActivity<AppState, HistoryInteractor>() {
 
@@ -21,9 +21,10 @@ class HistoryActivity : BaseActivity<AppState, HistoryInteractor>() {
 
     private val adapter by lazy { HistoryAdapter(onListItemClickListener) }
 
-    override val model by viewModel<HistoryViewModel>()
-//    override val model = ViewModelProvider(this).get(HistoryViewModel::class.java)
+    private val historyActivityScope =
+        getKoin().createScope("HistoryActivityScope", named<HistoryActivity>())
 
+    override val model by historyActivityScope.inject<HistoryViewModel>()
 
     private val onListItemClickListener: HistoryAdapter.OnListItemClickListener =
         object : HistoryAdapter.OnListItemClickListener {
@@ -31,10 +32,9 @@ class HistoryActivity : BaseActivity<AppState, HistoryInteractor>() {
                 startActivity(
                     DescriptionActivity.getIntent(
                         this@HistoryActivity,
-                        data.text.orEmpty(),
-                        data.meanings?.joinToString { it.translation?.translation.orEmpty() }
-                            .orEmpty(),
-                        data.meanings?.firstOrNull()?.imageUrl
+                        data.text,
+                        convertMeaningsToString(data.meanings),
+                        data.meanings.firstOrNull()?.imageUrl
                     )
                 )
             }
@@ -46,6 +46,11 @@ class HistoryActivity : BaseActivity<AppState, HistoryInteractor>() {
 
         iniViewModel()
         initViews()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        historyActivityScope.close()
     }
 
     override fun onResume() {

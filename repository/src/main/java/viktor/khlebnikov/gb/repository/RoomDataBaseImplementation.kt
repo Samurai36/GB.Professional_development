@@ -1,13 +1,13 @@
 package viktor.khlebnikov.gb.repository
 
 import viktor.khlebnikov.gb.model.AppState
-import viktor.khlebnikov.gb.model.DataModel
+import viktor.khlebnikov.gb.model.dto.SearchResultDTO
 import viktor.khlebnikov.gb.repository.room.HistoryDao
 
 class RoomDataBaseImplementation(private val historyDao: HistoryDao) :
-    DataSourceLocal<List<DataModel>> {
+    DataSourceLocal<List<SearchResultDTO>> {
 
-    override suspend fun getData(word: String): List<DataModel> {
+    override suspend fun getData(word: String): List<SearchResultDTO> {
 //        return historyDao.all().map(HistoryEntity::toDomainModel)
         return mapHistoryEntityToSearchResult(historyDao.all())
     }

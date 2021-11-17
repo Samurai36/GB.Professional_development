@@ -6,7 +6,8 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import viktor.khlebnikov.gb.gbprofrazrab.databinding.ActivityMainRecyclerviewItemBinding
-import viktor.khlebnikov.gb.model.DataModel
+import viktor.khlebnikov.gb.history.convertMeaningsToString
+import viktor.khlebnikov.gb.model.usersData.DataModel
 
 class MainAdapter(
     private val onListItemClickListener: OnListItemClickListener
@@ -46,8 +47,9 @@ class MainAdapter(
                 val binder = ActivityMainRecyclerviewItemBinding.bind(itemView)
                 binder.headerTextviewRecyclerItem.text = data.text
                 binder.descriptionTextviewRecyclerItem.text =
-                    data.meanings?.firstOrNull()?.translation?.translation
-                binder.root.setOnClickListener { openInNewWindow(data)
+                    convertMeaningsToString(data.meanings)
+                binder.root.setOnClickListener {
+                    openInNewWindow(data)
                 }
             }
         }

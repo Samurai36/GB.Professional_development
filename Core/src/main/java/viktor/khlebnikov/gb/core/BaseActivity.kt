@@ -3,13 +3,14 @@ package viktor.khlebnikov.gb.core
 import android.os.Bundle
 import android.os.PersistableBundle
 import android.view.View
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import viktor.khlebnikov.gb.core.databinding.LoadingLayoutBinding
 import viktor.khlebnikov.gb.core.viewmodel.BaseViewModel
 import viktor.khlebnikov.gb.core.viewmodel.Interactor
 import viktor.khlebnikov.gb.model.AppState
-import viktor.khlebnikov.gb.model.DataModel
-import viktor.khlebnikov.gb.utils.isOnline
+import viktor.khlebnikov.gb.model.usersData.DataModel
+import viktor.khlebnikov.gb.utils.OnlineLiveData
 import viktor.khlebnikov.gb.utils.ui.AlertDialogFragment
 
 private const val DIALOG_FRAGMENT_TAG = "DIALOG_FRAGMENT_TAG"
@@ -18,18 +19,32 @@ abstract class BaseActivity<T : AppState, I : Interactor<T>> : AppCompatActivity
 
     private lateinit var binding: LoadingLayoutBinding
     protected abstract val model: BaseViewModel<T>
-    protected var isNetworkAvailable: Boolean = false
+
+    protected var isNetworkAvailable: Boolean = true
 
     override fun onCreate(savedInstanceState: Bundle?, persistentState: PersistableBundle?) {
         super.onCreate(savedInstanceState, persistentState)
-        isNetworkAvailable = isOnline(applicationContext)
+        subscribeToNetworkChange()
+    }
+
+    private fun subscribeToNetworkChange() {
+        OnlineLiveData(this).observe(
+            this@BaseActivity,
+        ) {
+            isNetworkAvailable = it
+            if (!isNetworkAvailable) {
+                Toast.makeText(
+                    this@BaseActivity,
+                    R.string.dialog_message_device_is_offline,
+                    Toast.LENGTH_LONG
+                ).show()
+            }
+        }
     }
 
     override fun onResume() {
         super.onResume()
         binding = LoadingLayoutBinding.inflate(layoutInflater)
-
-        isNetworkAvailable = isOnline(applicationContext)
         if (!isNetworkAvailable && isDialogNull()) {
             showNoInternetConnectionDialog()
         }

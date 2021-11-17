@@ -7,38 +7,45 @@ import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
-import org.koin.androidx.viewmodel.ext.android.viewModel
+import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.floatingactionbutton.FloatingActionButton
+import org.koin.android.ext.android.getKoin
 import viktor.khlebnikov.gb.core.BaseActivity
 import viktor.khlebnikov.gb.gbprofrazrab.R
-import viktor.khlebnikov.gb.gbprofrazrab.databinding.ActivityMainBinding
 import viktor.khlebnikov.gb.gbprofrazrab.translator.interactor.main.MainInteractor
+import viktor.khlebnikov.gb.history.HistoryActivity
+import viktor.khlebnikov.gb.history.convertMeaningsToString
 import viktor.khlebnikov.gb.history.description.DescriptionActivity
 import viktor.khlebnikov.gb.model.AppState
-import viktor.khlebnikov.gb.model.DataModel
+import viktor.khlebnikov.gb.model.usersData.DataModel
 import viktor.khlebnikov.gb.repository.SearchDialogFragment
-import viktor.khlebnikov.gb.utils.isOnline
+import viktor.khlebnikov.gb.utils.viewByID
 
 class MainActivity : BaseActivity<AppState, MainInteractor>() {
 
-    private lateinit var binding: ActivityMainBinding
+//    private lateinit var binding: ActivityMainBinding
+
+    private val mainActivityRecyclerview by viewByID<RecyclerView>(R.id.main_activity_recyclerview)
+
+    private val searchFab by viewByID<FloatingActionButton>(R.id.search_fab)
 
     private val adapter: MainAdapter by lazy { MainAdapter(onListItemClickListener) }
+
+    private val mainActivityScope =
+        getKoin().getOrCreateScope<MainActivity>("MainActivityScope")
 
     override lateinit var model: MainViewModel
 
     private val onListItemClickListener: MainAdapter.OnListItemClickListener =
         object : MainAdapter.OnListItemClickListener {
             override fun onItemClick(data: DataModel) {
-
-                isNetworkAvailable = isOnline(applicationContext)
                 if (isNetworkAvailable) {
                     startActivity(
                         DescriptionActivity.getIntent(
                             this@MainActivity,
-                            data.text.orEmpty(),
-                            data.meanings?.joinToString { it.translation?.translation.orEmpty() }
-                                .orEmpty(),
-                            data.meanings?.firstOrNull()?.imageUrl
+                            data.text,
+                            convertMeaningsToString(data.meanings),
+                            data.meanings.firstOrNull()?.imageUrl
                         )
                     )
                 } else {
@@ -50,10 +57,16 @@ class MainActivity : BaseActivity<AppState, MainInteractor>() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.getDefaultNightMode())
-        binding = ActivityMainBinding.inflate(layoutInflater)
-        setContentView(binding.root)
+//        binding = ActivityMainBinding.inflate(layoutInflater)
+//        setContentView(binding.root)
+        setContentView(R.layout.activity_main)
         iniViewModel()
         initViews()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        mainActivityScope.close()
     }
 
     override fun setDataToAdapter(data: List<DataModel>) {
@@ -61,10 +74,10 @@ class MainActivity : BaseActivity<AppState, MainInteractor>() {
     }
 
     private fun iniViewModel() {
-        if (binding.mainActivityRecyclerview.adapter != null) {
+        if (mainActivityRecyclerview.adapter != null) {
             throw IllegalStateException("The ViewModel should be initialised first")
         }
-        val viewModel: MainViewModel by viewModel()
+        val viewModel: MainViewModel by mainActivityScope.inject()
         model = viewModel
         model.subscribe().observe(this@MainActivity) { renderData(it) }
     }
@@ -76,9 +89,9 @@ class MainActivity : BaseActivity<AppState, MainInteractor>() {
         )
         ContextCompat.getDrawable(baseContext, R.drawable.decorate)
             ?.let { decoration.setDrawable(it) }
-        binding.mainActivityRecyclerview.addItemDecoration(decoration)
+        mainActivityRecyclerview.addItemDecoration(decoration)
 
-        binding.searchFab.setOnClickListener {
+        searchFab.setOnClickListener {
             val searchDialogFragment = SearchDialogFragment.newInstance()
             searchDialogFragment.setOnSearchClickListener(object :
                 SearchDialogFragment.OnSearchClickListener {
@@ -88,7 +101,7 @@ class MainActivity : BaseActivity<AppState, MainInteractor>() {
             })
             searchDialogFragment.show(supportFragmentManager, BOTTOM_SHEET_FRAGMENT_DIALOG_TAG)
         }
-        binding.mainActivityRecyclerview.adapter = adapter
+        mainActivityRecyclerview.adapter = adapter
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -99,7 +112,7 @@ class MainActivity : BaseActivity<AppState, MainInteractor>() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             R.id.menu_history -> {
-                startActivity(viktor.khlebnikov.gb.history.HistoryActivity.createIntent(this))
+                startActivity(HistoryActivity.createIntent(this))
                 true
             }
             else -> super.onOptionsItemSelected(item)

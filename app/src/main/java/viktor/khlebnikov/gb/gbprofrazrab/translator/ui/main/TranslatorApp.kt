@@ -5,7 +5,6 @@ import org.koin.android.ext.koin.androidContext
 import org.koin.core.context.startKoin
 import viktor.khlebnikov.gb.gbprofrazrab.translator.di.application
 import viktor.khlebnikov.gb.gbprofrazrab.translator.di.historyScreen
-//import viktor.khlebnikov.gb.gbprofrazrab.translator.di.historyScreen
 import viktor.khlebnikov.gb.gbprofrazrab.translator.di.mainScreen
 
 class TranslatorApp : Application() {
@@ -17,5 +16,4 @@ class TranslatorApp : Application() {
             modules(listOf(application, mainScreen, historyScreen))
         }
     }
-
 }

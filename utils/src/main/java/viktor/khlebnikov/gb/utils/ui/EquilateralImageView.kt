@@ -1,4 +1,4 @@
-package viktor.khlebnikov.gb.history
+package viktor.khlebnikov.gb.utils.ui
 
 import android.content.Context
 import android.content.res.Configuration

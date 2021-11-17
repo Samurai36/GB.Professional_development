@@ -1,12 +1,10 @@
 package viktor.khlebnikov.gb.history
 
 import viktor.khlebnikov.gb.model.AppState
-import viktor.khlebnikov.gb.model.DataModel
-import viktor.khlebnikov.gb.model.Meanings
-
-fun parseOnlineSearchResults(appState: AppState): AppState {
-    return AppState.Success(mapResult(appState, true))
-}
+import viktor.khlebnikov.gb.model.dto.SearchResultDTO
+import viktor.khlebnikov.gb.model.usersData.DataModel
+import viktor.khlebnikov.gb.model.usersData.Meaning
+import viktor.khlebnikov.gb.model.usersData.TranslateMeaning
 
 fun parseLocalSearchResults(appState: AppState): AppState {
     return AppState.Success(mapResult(appState, false))
@@ -45,11 +43,11 @@ private fun getSuccessResultData(
 }
 
 private fun parseOnlineResult(dataModel: DataModel, newDataModels: ArrayList<DataModel>) {
-    if (!dataModel.text.isNullOrBlank() && !dataModel.meanings.isNullOrEmpty()) {
-        val newMeanings = arrayListOf<Meanings>()
-        for (meaning in dataModel.meanings!!) {
-            if (meaning.translation != null && !meaning.translation!!.translation.isNullOrBlank()) {
-                newMeanings.add(Meanings(meaning.translation, meaning.imageUrl))
+    if (dataModel.text.isNotBlank() && dataModel.meanings.isNotEmpty()) {
+        val newMeanings = arrayListOf<Meaning>()
+        for (meaning in dataModel.meanings) {
+            if (meaning.translateMeaning.translateMeaning.isNotBlank()) {
+                newMeanings.add(Meaning(meaning.translateMeaning, meaning.imageUrl))
             }
         }
         if (newMeanings.isNotEmpty()) {
@@ -58,13 +56,29 @@ private fun parseOnlineResult(dataModel: DataModel, newDataModels: ArrayList<Dat
     }
 }
 
-fun convertMeaningsToString(meanings: List<Meanings>): String {
+fun mapSearchResultToResult(searchResults: List<SearchResultDTO>): List<DataModel> {
+    return searchResults.map { searchResult ->
+        var meanings: List<Meaning> = listOf()
+        searchResult.meanings?.let {
+            //Check for null for HistoryScreen
+            meanings = it.map { meaningsDto ->
+                Meaning(
+                    TranslateMeaning(meaningsDto?.translation?.translation ?: ""),
+                    meaningsDto?.imageUrl ?: ""
+                )
+            }
+        }
+        DataModel(searchResult.text ?: "", meanings)
+    }
+}
+
+fun convertMeaningsToString(meanings: List<Meaning>): String {
     var meaningsSeparatedByComma = String()
     for ((index, meaning) in meanings.withIndex()) {
         meaningsSeparatedByComma += if (index + 1 != meanings.size) {
-            String.format("%s%s", meaning.translation?.translation, ", ")
+            String.format("%s%s", meaning.translateMeaning.translateMeaning, ", ")
         } else {
-            meaning.translation?.translation
+            meaning.translateMeaning.translateMeaning
         }
     }
     return meaningsSeparatedByComma

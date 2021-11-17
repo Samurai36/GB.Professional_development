@@ -20,7 +20,7 @@ import com.squareup.picasso.Callback
 import com.squareup.picasso.Picasso
 import viktor.khlebnikov.gb.history.R
 import viktor.khlebnikov.gb.history.databinding.ActivityDescriptionBinding
-import viktor.khlebnikov.gb.utils.isOnline
+import viktor.khlebnikov.gb.utils.OnlineLiveData
 import viktor.khlebnikov.gb.utils.ui.AlertDialogFragment
 
 class DescriptionActivity : AppCompatActivity() {
@@ -46,6 +46,7 @@ class DescriptionActivity : AppCompatActivity() {
         imageLoader.shutdown()
         super.onDestroy()
     }
+
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             android.R.id.home -> {
@@ -68,29 +69,6 @@ class DescriptionActivity : AppCompatActivity() {
             // useCoilToLoadPhoto(binding.descriptionImageview, imageUrl)
             useGlideToLoadPhoto(binding.descriptionImageview, imageUrl)
         }
-    }
-
-    private fun useCoilToLoadPhoto(imageView: ImageView, imageUrl: String) {
-        val request = LoadRequest.Builder(this)
-            .data("https:$imageUrl")
-            .target(
-                onStart = {},
-                onSuccess = { result ->
-                    imageView.setImageDrawable(result)
-                    stopRefreshAnimationIfNeeded()
-                },
-                onError = {
-                    stopRefreshAnimationIfNeeded()
-                    imageView.setImageResource(R.drawable.ic_load_error_vector)
-                }
-            )
-            .placeholder(R.drawable.ic_no_photo_vector)
-            .transformations(
-                CircleCropTransformation(),
-            )
-            .build()
-
-        imageLoader.execute(request)
     }
 
     private fun useGlideToLoadPhoto(imageview: ImageView, imageUrl: String) {
@@ -125,21 +103,6 @@ class DescriptionActivity : AppCompatActivity() {
             ).into(imageview)
     }
 
-    private fun usePicassoToLoadPhoto(imageview: ImageView, imageUrl: String) {
-        Picasso.get().load("https:$imageUrl")
-            .placeholder(R.drawable.ic_no_photo_vector).fit().centerCrop()
-            .into(imageview, object : Callback {
-                override fun onSuccess() {
-                    stopRefreshAnimationIfNeeded()
-                }
-
-                override fun onError(e: Exception?) {
-                    stopRefreshAnimationIfNeeded()
-                    imageview.setImageResource(R.drawable.ic_load_error_vector)
-                }
-            })
-    }
-
     private fun stopRefreshAnimationIfNeeded() {
         if (binding.descriptionScreenSwipeRefreshLayout.isRefreshing) {
             binding.descriptionScreenSwipeRefreshLayout.isRefreshing = false
@@ -147,16 +110,21 @@ class DescriptionActivity : AppCompatActivity() {
     }
 
     private fun startLoadingOrShowError() {
-        if (isOnline(applicationContext)) {
-            setData()
-        } else {
-            AlertDialogFragment.newInstance(
-                getString(R.string.dialog_title_device_is_offline),
-                getString(R.string.dialog_message_device_is_offline)
-            ).show(
-                supportFragmentManager,
-                DIALOG_FRAGMENT_TAG
-            )
+        OnlineLiveData(this).observe(
+            this@DescriptionActivity,
+        ) {
+            if (it) {
+                setData()
+            } else {
+                AlertDialogFragment.newInstance(
+                    getString(R.string.dialog_title_device_is_offline),
+                    getString(R.string.dialog_message_device_is_offline)
+                ).show(
+                    supportFragmentManager,
+                    DIALOG_FRAGMENT_TAG
+                )
+                stopRefreshAnimationIfNeeded()
+            }
         }
     }
 
