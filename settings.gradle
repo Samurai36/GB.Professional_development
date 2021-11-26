@@ -19,3 +19,8 @@ dependencyResolutionManagement {
 }
 rootProject.name = "GB.Prof.razrab"
 include ':app'
+include ':Core'
+include ':Model'
+include ':utils'
+include ':repository'
+include ':history'
